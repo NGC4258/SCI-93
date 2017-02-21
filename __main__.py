@@ -2,6 +2,7 @@
 
 import logging
 import sys
+import time
 
 from os import environ
 from os import listdir
@@ -32,6 +33,7 @@ def data_camp():
 
     def fetch_values_from_google(scarcity, stock):
         try:
+            log.info("Fetching %s, %s day(s)" % (stock, scarcity))
             code, content = google.get(scarcity, stock)
         except Exception as e:
             log.error(e)
@@ -85,25 +87,41 @@ def data_camp():
 
 def main():
 
+    startT = time.time()
+
     procedure = (
         check_environment,
         data_camp
     )
 
+    log.info("$" * 50)
+    log.info("$ Start {0:40} $".format(pName))
+    log.info("$" * 50)
+
     for process in procedure:
-        if process():
-            sys.exit(1)
+        log.info("-" * 40)
+        log.info("| {0:36} |".format(process.__name__))
+        log.info("-" * 40)
+
+        result = process()
+
+        if result:
+            log.error("Error, %s" % result)
+
+    log.info("-" * 40)
+    log.info("Finished, total time taken: %s" % round(time.time() - startT, 2))
 
 if __name__ == "__main__":
     #Fetch project location
     path = split(realpath(__file__))[0]
 
     #Fetch parent path of project
-    mPath = abspath(dirname(path))
+    pName = basename(path)
+    pPath = abspath(dirname(path))
 
     #Determine logging location
-    logName = "%s.log" % basename(path)
-    logPath = pjoin(mPath, logName)
+    logName = "%s.log" % pName
+    logPath = pjoin(pPath, logName)
 
     #Initial logging
     logging.getLogger("requests").setLevel(logging.WARNING)
@@ -111,8 +129,8 @@ if __name__ == "__main__":
     log = logging.getLogger()
     log.setLevel(logging.INFO)
     fh = logging.FileHandler(logPath)
-    formatter = logging.Formatter("%(asctime)s %(levelname)s %(funcName)s,"
-                                  "%(lineno)d - %(message)s", "%Y-%m-%d %H:%M:%S"
+    formatter = logging.Formatter("%(asctime)s %(levelname)s "
+                                  "- %(message)s", "%Y-%m-%d %H:%M:%S"
     )
     fh.setFormatter(formatter)
     log.addHandler(fh)
