@@ -33,7 +33,7 @@ def data_camp():
 
     def fetch_values_from_google(scarcity, stock):
         try:
-            log.info("Fetching %s, %s day(s)" % (stock, scarcity))
+            log.info("Fetching %s, over %s day(s)" % (stock, scarcity))
             code, content = google.get(scarcity, stock)
         except Exception as e:
             log.error(e)
@@ -91,7 +91,8 @@ def main():
 
     procedure = (
         check_environment,
-        data_camp
+        data_camp,
+        data_analysis
     )
 
     log.info("$" * 50)
@@ -109,7 +110,7 @@ def main():
             log.error("Error, %s" % result)
 
     log.info("-" * 40)
-    log.info("Finished, total time taken: %s" % round(time.time() - startT, 2))
+    log.info("Finished, total time taken: %s sec" % round(time.time() - startT, 2))
 
 if __name__ == "__main__":
     #Fetch project location
